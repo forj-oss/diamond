@@ -1,0 +1,68 @@
+input {
+  tcp {
+    port => <%= @kato_port %>
+    type => kato
+  }
+  tcp {
+    port => <%= @stackatoapp_port %>
+    type => stackatoapp
+  }
+  redis {
+    host => <%= @redis_server %>
+    port => <%= @redis_port %>
+    type => operations
+    data_type => list
+    key => logstash
+  }
+}
+filter {
+  if [type] == "kato" {
+    grok {
+      match => { "message" => "%{NOTSPACE:kato_host}: \[%{GREEDYDATA:kato_date}\] \[%{LOGLEVEL:loglevel}\] \(%{INT:kato_pid}\) %{GREEDYDATA:kato_message}" }
+    }
+    syslog_pri { }
+    date {
+      match => [ "kato_date", "YYYY-MM-dd HH:mm:ss zzzz" ]
+    }
+    if !("_grokparsefailure" in [tags]) {
+      mutate {
+        replace => [ "@source_host", "%{kato_host}" ]
+        replace => [ "@message", "%{kato_message}" ]
+      }
+    }
+  }
+  if [type] == "stackatoapp" {
+    grok {
+      match => { "message" => "%{TIMESTAMP_ISO8601:syslog_timestamp} %{NOTSPACE:stackato_source}: %{GREEDYDATA:syslog_message}" }
+    }
+    syslog_pri { }
+    date {
+      match => [ "syslog_timestamp", "ISO8601" ]
+    }
+    if !("_grokparsefailure" in [tags]) {
+      mutate {
+        replace => [ "@source_host", "%{syslog_hostname}" ]
+        replace => [ "@message", "%{syslog_message}" ]
+      }
+    }
+    mutate {
+      remove_field => [ "syslog_hostname", "syslog_message" ]
+    }
+  }
+  if [type] == "operations" {
+    date {
+      match => [ "ops_timestamp", "ISO8601" ]
+    }
+    if !("_grokparsefailure" in [tags]) {
+      mutate {
+        replace => [ "@source_host", "%{ops_host}" ]
+        replace => [ "@message", "%{ops_message}" ]
+      }
+    }
+  }
+}
+
+output {
+  elasticsearch { }
+  stdout { codec => json }
+}
