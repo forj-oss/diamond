@@ -14,48 +14,24 @@
 # under the License.
 #
 class diamond_project::gitlab(
-  $git_email     = 'gitlab@forj.io',
-  $git_comment   = 'GitLab',
-  $gitlab_domain = 'gitlab.forj.io',
-  $gitlab_dbtype = 'mysql',
-  $gitlab_dbname = 'gitlabdb',
-  $gitlab_dbuser = 'gitlab',
-  $gitlab_dbpwd  = 'changeme',
+  $gitlab_user      = hiera('diamond_project::gitlab::gitlab_user'    ,'git'),
+  $gitlab_group     = hiera('diamond_project::gitlab::gitlab_group'   ,'git'),
+  $gitlab_home      = hiera('diamond_project::gitlab::gitlab_home'    ,'/home/git'),
+  $gitlab_repo      = hiera('diamond_project::gitlab::gitlab_repo'    ,'https://gitlab.com/gitlab-org/gitlab-ce.git'),
+  $gitlab_branch    = hiera('diamond_project::gitlab::gitlab_branch'  ,'7-1-stable'),
+  $gitlab_db_type   = hiera('diamond_project::gitlab::gitlab_db_type' ,'mysql'),
+  $gitlab_db_pass   = hiera('diamond_project::gitlab::gitlab_db_pass' ,'changeme'),
 ){
-
-  require nginx
-  require redis
-  require mysql::server
-
-  mysql::db { $gitlab_dbname:
-    user     => $gitlab_dbuser,
-    password => $gitlab_dbpwd,
-    host     => 'localhost',
-    grant    => ['ALL'],
+  class {'::gitlab::params':
+    gitlab_user    => $gitlab_user,
+    gitlab_group   => $gitlab_group,
+    gitlab_home    => $gitlab_home,
+    gitlab_repo    => $gitlab_repo,
+    gitlab_branch  => $gitlab_branch,
+    gitlab_db_type => $gitlab_db_type,
+    gitlab_db_pass => $gitlab_db_pass,
   }
-
-  #Installs or update to ruby 1.9 'ruby1.9.1-dev'
-  class { 'ruby':
-    ruby_package     => 'ruby1.9.1-full',
-    rubygems_package => 'rubygems1.9.1',
-    gems_version     => 'latest',
-  } ->
-  package { ['cmake', 'pkg-config']:
-    ensure => installed,
-  } ->
   class { '::gitlab':
-    gitlab_branch      => '7-4-stable',
-    gitlabshell_branch => 'v2.0.1',
-    git_email          => $git_email,
-    git_comment        => $git_comment,
-    gitlab_domain      => $gitlab_domain,
-    gitlab_dbtype      => $gitlab_dbtype,
-    gitlab_dbname      => $gitlab_dbname,
-    gitlab_dbuser      => $gitlab_dbuser,
-    gitlab_dbpwd       => $gitlab_dbpwd,
-    ldap_enabled       => false,
-    require            => Mysql::Db[$gitlab_dbname],
-    notify             => Class['nginx::service'],
+    require => Class['::gitlab::params']
   }
-
 }
