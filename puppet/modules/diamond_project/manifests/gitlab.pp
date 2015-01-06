@@ -22,7 +22,7 @@ class diamond_project::gitlab(
   $gitlab_db_type   = hiera('diamond_project::gitlab::gitlab_db_type' ,'mysql'),
   $gitlab_db_pass   = hiera('diamond_project::gitlab::gitlab_db_pass' ,'changeme'),
 ){
-  class {'::gitlab::params':
+  class { '::gitlab':
     gitlab_user    => $gitlab_user,
     gitlab_group   => $gitlab_group,
     gitlab_home    => $gitlab_home,
@@ -30,8 +30,5 @@ class diamond_project::gitlab(
     gitlab_branch  => $gitlab_branch,
     gitlab_db_type => $gitlab_db_type,
     gitlab_db_pass => $gitlab_db_pass,
-  }
-  class { '::gitlab':
-    require => Class['::gitlab::params']
   }
 }
