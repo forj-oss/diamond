@@ -14,21 +14,25 @@
 # under the License.
 #
 class diamond_project::gitlab(
-  $gitlab_user      = hiera('diamond_project::gitlab::gitlab_user'    ,'git'),
-  $gitlab_group     = hiera('diamond_project::gitlab::gitlab_group'   ,'git'),
-  $gitlab_home      = hiera('diamond_project::gitlab::gitlab_home'    ,'/home/git'),
-  $gitlab_repo      = hiera('diamond_project::gitlab::gitlab_repo'    ,'https://gitlab.com/gitlab-org/gitlab-ce.git'),
-  $gitlab_branch    = hiera('diamond_project::gitlab::gitlab_branch'  ,'7-1-stable'),
-  $gitlab_db_type   = hiera('diamond_project::gitlab::gitlab_db_type' ,'mysql'),
-  $gitlab_db_pass   = hiera('diamond_project::gitlab::gitlab_db_pass' ,'changeme'),
+  $vhost_name       = hiera('diamond_project::gitlab::vhost_name'       ,$::fqdn),
+  $gitlab_user      = hiera('diamond_project::gitlab::gitlab_user'      ,'git'),
+  $gitlab_user_home = hiera('diamond_project::gitlab::gitlab_user_home' ,'/home/git'),
+  $gitlab_group     = hiera('diamond_project::gitlab::gitlab_group'     ,'git'),
+  $gitlab_repo      = hiera('diamond_project::gitlab::gitlab_repo'      ,'https://gitlab.com/gitlab-org/gitlab-ce.git'),
+  $gitlab_branch    = hiera('diamond_project::gitlab::gitlab_branch'    ,'7-1-stable'),
+  $gitlab_db_type   = hiera('diamond_project::gitlab::gitlab_db_type'   ,'mysql'),
+  $gitlab_db_user   = hiera('diamond_project::gitlab::gitlab_db_user'   ,'git'),
+  $gitlab_db_pass   = hiera('diamond_project::gitlab::gitlab_db_pass'   ,'changeme'),
 ){
   class { '::gitlab':
-    gitlab_user    => $gitlab_user,
-    gitlab_group   => $gitlab_group,
-    gitlab_home    => $gitlab_home,
-    gitlab_repo    => $gitlab_repo,
-    gitlab_branch  => $gitlab_branch,
-    gitlab_db_type => $gitlab_db_type,
-    gitlab_db_pass => $gitlab_db_pass,
+    vhost_name       => $vhost_name,
+    gitlab_user      => $gitlab_user,
+    gitlab_user_home => $gitlab_user_home,
+    gitlab_group     => $gitlab_group,
+    gitlab_repo      => $gitlab_repo,
+    gitlab_branch    => $gitlab_branch,
+    gitlab_db_type   => $gitlab_db_type,
+    gitlab_db_user   => $gitlab_db_user,
+    gitlab_db_pass   => $gitlab_db_pass,
   }
 }

@@ -25,12 +25,14 @@ classes:
   - diamond_project::gitlab
 
 # Gitlab tool
+diamond_project::gitlab::vhost_name:        "%{::maestro::node_vhost_lookup::vname}"
 diamond_project::gitlab::gitlab_user:       'git'
+diamond_project::gitlab::gitlab_user_home:  '/home/git'
 diamond_project::gitlab::gitlab_group:      'git'
-diamond_project::gitlab::gitlab_home:       '/home/git'
 diamond_project::gitlab::gitlab_repo:       'https://gitlab.com/gitlab-org/gitlab-ce.git'
 diamond_project::gitlab::gitlab_branch:     '7-1-stable'
 diamond_project::gitlab::gitlab_db_type:    'mysql'
+diamond_project::gitlab::gitlab_db_user:    'git'
 diamond_project::gitlab::gitlab_db_pass:    'changeme'
 
 #TODO Configure backup
@@ -49,5 +51,5 @@ sysadmin_config::manage_servers::iptables_public_tcp_ports:
   - 443
   - 8080
 
-#TODO Tool status for gitlab
-#maestro::tool_status::source: 'puppet:///modules/runtime_project/tool_status/review/toolstatus.sh'
+#Install tool status script into node
+maestro::tool_status::source: 'puppet:///modules/runtime_project/tool_status/review/toolstatus.sh'
