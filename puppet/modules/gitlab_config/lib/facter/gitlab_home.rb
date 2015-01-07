@@ -20,17 +20,17 @@ Facter.add("gitlab_home") do
   setcode do
     if File.exist? "/etc/default/gitlab"
       #the string to look for and the path should change depending on the system to discover
-      user = open('/etc/default/gitlab').grep(/app_user/)
-      starting = user[0].index('=') + 1
+      user = open('/etc/default/gitlab').grep(/app_user=/)
+      starting = user[0].index('=') + 2
       ending = user[0][0]
       user = user[0][starting..ending]
       user.gsub! "\n", ""
-      home = open('/etc/default/gitlab').grep(/app_root/)
-      starting = home[0].index('=') + 1
+      home = open('/etc/default/gitlab').grep(/app_root=/)
+      starting = home[0].index('=') + 2
       ending = home[0][0]
       home = home[0][starting..ending]
       home.gsub! "\n", ""
-      home.gsub! "$" user
+      home.gsub! "$app_user", user
       Facter::Util::Resolution.exec("echo #{home}")
     else
       Facter::Util::Resolution.exec("echo")  # gitlab doesn't exist here

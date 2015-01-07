@@ -20,30 +20,9 @@ require 'yaml'
 Facter.add("gitlab_url") do
   confine :kernel => "Linux"
   setcode do
-
-    def recurse(obj, pattern, current_path = [], &block)
-      if obj.is_a?(String)
-        path = current_path.join('.')
-        if obj =~ pattern || path =~ pattern
-          yield [path, obj]
-        end
-      elsif obj.is_a?(Hash)
-        obj.each do |k, v|
-          recurse(v, pattern, current_path + [k], &block)
-        end
-      end
-    end
-
     gitlab_config = Facter.value('gitlab_config')
     if File.exist? gitlab_config
-      hash = YAML.load_file(gitlab_config)
-      recurse(hash, 'production.gitlab.host') do |path, value|
-        #Validate property
-        #match = "#{path}:\t#{value}"
-        #puts match
-        gitlab_url = value
-      end
-      Facter::Util::Resolution.exec("echo http://#{gitlab_url}")
+      Facter::Util::Resolution.exec("echo http://$(grep -m 1 'host: ' #{gitlab_config} | awk -F': ' '{printf $2}')")
     else
       Facter::Util::Resolution.exec("echo")  # gitlab doesn't exist here
     end
