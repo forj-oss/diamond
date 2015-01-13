@@ -1,4 +1,3 @@
-# == Class: diamond_project
 # Copyright 2014 Hewlett-Packard Development Company, L.P.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,6 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-#
-include diamond_project::openfire
-include diamond_project::gitlab
+class runtime_project::hostsdiscovery (
+) {
+  $id_array = split($::domain, '\.')
+  $id = $id_array[0]
+  notify{">>>>>> forj id=${id}":}
+  $maestro_ip = compute_private_ip_lookup("maestro.${id}")
+  $review_ip = compute_private_ip_lookup("review.${id}")
+  $dashboard_ip = compute_private_ip_lookup("dashboard.${id}")
+
+  notify{">>>>>> maestro:${maestro_ip}, review:${review_ip}, dashboard:${dashboard_ip}" :}
+}

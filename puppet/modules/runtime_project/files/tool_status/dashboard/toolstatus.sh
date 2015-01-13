@@ -17,49 +17,39 @@
 # != 0 not runnning
 #
 # Calling the script from maestro using salt:
-# salt 'review.*' --out=json cmd.retcode 'sudo -i /usr/lib/forj/toolstatus.sh gitlab'
+# salt 'util.*' --out=json cmd.retcode 'sudo -i /usr/lib/forj/toolstatus.sh elasticsearch'
+
 
 RETVAL=1
+#if [ $# -eq 0 ]; then
+#  echo "Usage: toolstatus.sh {service_name}"
+#  exit 1
+#fi
+#
+#sudo -i service "$1" status > /dev/null 2>&1
+#RETVAL=$?
+#exit $RETVAL
 
-gitlab() {
-  sudo -i service gitlab status > /dev/null 2>&1
+kibana() {
+  sudo -i service apache2 status > /dev/null 2>&1
   RETVAL=$?
   echo $RETVAL
 }
 
-openfire() {
-  sudo -i service openfire status > /dev/null 2>&1
-  RETVAL=$?
-  echo $RETVAL
-}
-
-hubot() {
-  sudo -i service hubot status > /dev/null 2>&1
-  RETVAL=$?
-  echo $RETVAL
-}
-
-jenkins() {
-  sudo -i service jenkins status > /dev/null 2>&1
+elasticsearch() {
+  sudo -i service elasticsearch-es-01 status > /dev/null 2>&1
   RETVAL=$?
   echo $RETVAL
 }
 
 case "$1" in
-  gitlab)
-    gitlab
+  kibana)
+    kibana
     ;;
-  openfire)
-    openfire
-    ;;
-  hubot)
-    hubot
-    ;;
-  jenkins)
-    jenkins
+  elasticsearch)
+    elasticsearch
     ;;
   *)
-    echo "Usage: {gitlab|openfire|hubot|jenkins}"
+    echo "Usage: {kibana|elasticsearch}"
     ;;
 esac
-

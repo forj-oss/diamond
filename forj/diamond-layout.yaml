@@ -1,4 +1,4 @@
-# (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
+# (c) Copyright 2015 Hewlett-Packard Development Company, L.P.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-# Openstack layout - Version 0.01
+# Diamond - Version 0.0.1
 #
 
-# This file has been created to be focused for the first generator script to manage openstack as a Blueprint implementation.
+# This file has been created to be focused for the first generator script to manage a Blueprint implementation.
 #
 # On Maestro, this file will need to be located under /usr/lib/maestro/layouts.
 # By convention, the layout will be named as <bluePrintName>-layout.yaml to make the distinction against the master one.
@@ -33,11 +33,15 @@ blueprint-deploy:
    layout: diamond
    blueprint : diamond # This refer to another file which describes the blueprint itself. In this case, I named this file diamond-master.yaml.
    servers:
-     - util: 
-       name: kibana
+     - maestro:
+       name: maestro
+     - review:
+       name: review
+     - dashboard:
+       name: dashboard
        applications:
-        - kibana:
-          class: diamond_project::elk # This is the name of the class to add in classes data of hieradata.
+        - status:
+          class: cdk_project::status # This is the name of the class to add in classes data of hieradata.
           class_template: status.pp.erb # This refers to a puppet template to merge with others the generated document.
           class_params: # Those are the list of variables needed to make the class work. They are prefixed by the module name. ie 'status'.
             - sysadmins:
@@ -46,3 +50,32 @@ blueprint-deploy:
             - graphite_url: "http://${node_vhost}:8081"
             - static_url: "http://${node_vhost}:8080"
             - maestro_url: "http://%{maestro-url}"
+        - graphite:
+          class: cdk_project::graphite
+          class_template: graphite.pp.erb # This refers to a puppet template to merge with others the generated document.
+          class_params:
+            - vhost_name: "${node_vhost}"
+            - sysadmins:
+            - graphite_admin_user:
+            - graphite_admin_email:
+            - graphite_admin_password:
+            - statsd_hosts: [ "${zuul_url}" ]
+        - paste:
+          class: cdk_project::paste
+          class_template: paste.pp.erb # This refers to a puppet template to merge with others the generated document.
+          class_params:
+            - sysadmins:
+            - vhost_name: "${node_vhost}"
+            - site_name: 'cdkdev'
+     - nodepool:
+       name: nodepool
+       applications:
+        - nodepool:
+          class: cdk_project::nodepool
+          class_template: nodepool.pp.erb
+          class_params:
+            - vhost_name: "${node_vhost}"
+            - sysadmins:
+            - mysql_password:
+            - mysql_root_password:
+            - nodepool_ssh_private_key:

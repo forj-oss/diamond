@@ -15,5 +15,4 @@
 #
 #
 class diamond_project {
-  include diamond_project::openfire
 }

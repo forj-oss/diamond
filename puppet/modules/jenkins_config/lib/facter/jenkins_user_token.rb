@@ -1,4 +1,5 @@
-# == gitlab_config::gitlab_url_config
+# == jenkins_config::jenkins_user_token
+# Copyright 2013 OpenStack Foundation.
 # Copyright 2013 Hewlett-Packard Development Company, L.P.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,15 +16,14 @@
 #
 #
 
-Facter.add('gitlab_url_config') do
+Facter.add('jenkins_user_token') do
   confine :kernel => 'Linux'
   setcode do
-    url = Facter.value('gitlab_url')
-    if url != nil and url != ''
-      url_config = url + '/admin/'
-      Facter::Util::Resolution.exec("echo #{url_config}")
+  #the string to look for and the path should change depending on the system to discover
+    if File.exist? '/tmp/jenkins.tok'
+      Facter::Util::Resolution.exec('cat /tmp/jenkins.tok')
     else
-      Facter::Util::Resolution.exec('echo')  # gitlab doesn't exist here
+      Facter::Util::Resolution.exec('echo ')
     end
   end
 end

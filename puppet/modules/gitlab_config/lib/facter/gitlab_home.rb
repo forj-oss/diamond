@@ -15,25 +15,18 @@
 #
 #
 
-Facter.add("gitlab_home") do
-  confine :kernel => "Linux"
+Facter.add('gitlab_home') do
+  confine :kernel => '"Linux"  '
   setcode do
-    if File.exist? "/etc/default/gitlab"
+    if File.exist? '/etc/default/gitlab'
       #the string to look for and the path should change depending on the system to discover
-      user = open('/etc/default/gitlab').grep(/app_user=/)
-      starting = user[0].index('=') + 2
-      ending = user[0][0]
-      user = user[0][starting..ending]
-      user.gsub! "\n", ""
+      #user = open('/etc/default/gitlab').grep(/app_user=/)
+      #user = user[0][/"[^"]*/].sub(/"/,'')
       home = open('/etc/default/gitlab').grep(/app_root=/)
-      starting = home[0].index('=') + 2
-      ending = home[0][0]
-      home = home[0][starting..ending]
-      home.gsub! "\n", ""
-      home.gsub! "$app_user", user
+      home = home[0][/"[^"]*/].sub(/"/,'')
       Facter::Util::Resolution.exec("echo #{home}")
     else
-      Facter::Util::Resolution.exec("echo")  # gitlab doesn't exist here
+      Facter::Util::Resolution.exec('echo')  # gitlab doesn't exist here
     end
   end
 end

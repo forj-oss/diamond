@@ -1,4 +1,4 @@
-# == Class: diamond_project::hubot
+# == Class: jenkins_config::plugin
 # Copyright (C) 2014 R. Tyler Croy <tyler@monkeypox.org>
 # Copyright 2014 Hewlett-Packard Development Company, L.P.
 #
@@ -17,7 +17,7 @@
 # Defined resource type to install jenkins plugins.
 #
 define jenkins_config::plugin(
-  $version=0,
+  $version = 0,
 ) {
   $plugin            = "${name}.hpi"
   $plugin_dir        = '/var/lib/jenkins/plugins'

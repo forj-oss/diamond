@@ -15,17 +15,16 @@
 #
 #
 
-require 'yaml'
-
-Facter.add("gitlab_url") do
-  confine :kernel => "Linux"
+Facter.add('gitlab_url') do
+  confine :kernel => 'Linux'
   setcode do
     gitlab_config = Facter.value('gitlab_config')
     if File.exist? gitlab_config
+      puts "gitlab url: #{gitlab_config}"
       Facter::Util::Resolution.exec("echo http://$(grep -m 1 'host: ' #{gitlab_config} | awk -F': ' '{printf $2}')")
     else
-      Facter::Util::Resolution.exec("echo")  # gitlab doesn't exist here
+      puts "gitlab url: nada"
+      Facter::Util::Resolution.exec('echo')  # gitlab doesn't exist here
     end
-
   end
 end

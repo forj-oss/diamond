@@ -15,14 +15,16 @@
 #
 #
 
-Facter.add("gitlab_config") do
-  confine :kernel => "Linux"
+Facter.add('gitlab_config') do
+  confine :kernel => 'Linux'
   setcode do
-    gitlab_home = Facter.value('gitlab_home')
-    if gitlab_home != nil and gitlab_home != '' and File.exist? "#{gitlab_home}/config/gitlab.yml"
+    gitlab_home = Facter.value('gitlab_user_home')
+    if gitlab_home != nil and
+       gitlab_home != ''  and
+       File.exist? "#{gitlab_home}/config/gitlab.yml"
       Facter::Util::Resolution.exec("echo #{gitlab_home}/config/gitlab.yml")
     else
-      Facter::Util::Resolution.exec("echo")  # gitlab doesn't exist here
+      Facter::Util::Resolution.exec('echo')  # gitlab doesn't exist here
     end
   end
 end

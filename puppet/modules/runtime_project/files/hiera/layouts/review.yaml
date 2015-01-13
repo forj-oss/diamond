@@ -22,18 +22,81 @@
 classes:
   - maestro::node_vhost_lookup
   - sysadmin_config::manage_servers
+  - maestro::app::tool_status
   - diamond_project::gitlab
+  - diamond_project::openfire
+  - diamond_project::hubot
+  - diamond_project::jenkins
 
 # Gitlab tool
 diamond_project::gitlab::vhost_name:        "%{::maestro::node_vhost_lookup::vname}"
 diamond_project::gitlab::gitlab_user:       'git'
 diamond_project::gitlab::gitlab_user_home:  '/home/git'
 diamond_project::gitlab::gitlab_group:      'git'
+diamond_project::gitlab::gitlab_ruby_ver:   '2.1.2'
 diamond_project::gitlab::gitlab_repo:       'https://gitlab.com/gitlab-org/gitlab-ce.git'
-diamond_project::gitlab::gitlab_branch:     '7-1-stable'
+diamond_project::gitlab::gitlab_branch:     '7-3-stable'
+diamond_project::gitlab::gitlab_shell_ver:  '2.0.1'
 diamond_project::gitlab::gitlab_db_type:    'mysql'
 diamond_project::gitlab::gitlab_db_user:    'git'
 diamond_project::gitlab::gitlab_db_pass:    'changeme'
+#diamond_project::gitlab::mail_address:      ''
+#diamond_project::gitlab::mail_port:         '22'
+#diamond_project::gitlab::mail_user:         ''
+#diamond_project::gitlab::mail_password:     ''
+#diamond_project::gitlab::mail_domain:       "%{::fqdn}"
+#Misc
+#diamond_project::gitlab::users:
+#diamond_project::gitlab::projects:
+#diamond_project::gitlab::system_hooks:
+#diamond_project::gitlab::groups:
+
+diamond_project::gitlab::mail_address:      'smtp.sendgrid.net'
+diamond_project::gitlab::mail_port:         '587'
+diamond_project::gitlab::mail_user:         'forjio'
+diamond_project::gitlab::mail_password:     '4546ccb3b52c7ce2117249e4f9fd4590'
+diamond_project::gitlab::mail_domain:       "%{::fqdn}"
+#Misc
+diamond_project::gitlab::users:
+  isaias.pina@hp.com:
+    username:  'user2'
+    real_name: 'hp user'
+diamond_project::gitlab::projects:
+  forj-config:
+    visibility_level: '0'
+    hook_url:         "http://localhost:5555/gitlab/web?targets=dev@conference.%{::fqdn}"
+diamond_project::gitlab::system_hooks:
+  http://google.com?targets=dev@conference:
+    ensure: 'present'
+diamond_project::gitlab::groups:
+  'Forj Group':
+    path:    'forj-group'
+    members:
+      - 'isaias.pina@hp.com;30'
+      - 'admin@example.com;40'
+    projects:
+      - 'modus'
+
+# openfire
+diamond_project::openfire::of_admin_pass: 'changeme'
+diamond_project::openfire::of_plugins:
+  - 'monitoring.jar'
+diamond_project::openfire::of_hubot_pass: 'changeme'
+
+# hubot
+diamond_project::hubot::chat_bot_user:        'hubot'
+diamond_project::hubot::chat_bot_password:    'changeme'
+diamond_project::hubot::chat_fqdn:            "%{::fqdn}"
+diamond_project::hubot::chat_ip:              "%{::ipaddress}"
+diamond_project::hubot::chat_bot_displayname: '[0__0]'
+diamond_project::hubot::bot_listening_port:   '5555'
+diamond_project::hubot::chat_room:            'dev'
+diamond_project::hubot::chat_room_password:   'changeme'
+
+#Jenkins tool
+diamond_project::jenkins::jenkins_port: '8081'
+diamond_project::jenkins::default_user: 'root'
+diamond_project::jenkins::default_pass: 'changeme'
 
 #TODO Configure backup
 # backup tool
@@ -47,9 +110,13 @@ diamond_project::gitlab::gitlab_db_pass:    'changeme'
 
 # setup server (iptables, rsyslog, tcpdump, ssh)
 sysadmin_config::manage_servers::iptables_public_tcp_ports:
-  - 80
+  - 80    #gitlab
   - 443
-  - 8080
+  - 5222  #openfire clients
+  - 5555  #hubot listening
+  - 6379  #redis
+  - 8081  #jenkins
+  - 9090  #openfire
 
 #Install tool status script into node
 maestro::tool_status::source: 'puppet:///modules/runtime_project/tool_status/review/toolstatus.sh'

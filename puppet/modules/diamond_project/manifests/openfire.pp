@@ -13,15 +13,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-class diamond_project::openfire
-{
+class diamond_project::openfire (
+  $of_admin_pass = hiera('diamond_project::openfire::of_admin_pass', 'changeme'),
+  $of_plugins    = hiera('diamond_project::openfire::of_plugins'   , ['monitoring.jar']),
+  $of_hubot_pass = hiera('diamond_project::openfire::of_hubot_pass', 'changeme'),
+){
   $fqdn = $::fqdn ? {
     ''      => '127.0.0.1',
     default => $::fqdn,
   }
 
   class { '::openfire':
-    of_admin_pass => 'changeme',
+    install_java  => false,
+    of_admin_pass => $of_admin_pass,
     of_config     => {
       'xmpp.domain'                               => {
                                                       value => $fqdn
@@ -44,7 +48,7 @@ class diamond_project::openfire
                                                       value => false
                                                       },
     },
-    plugins       => ['monitoring.jar'],
+    plugins       => $of_plugins,
   }
 
   ::openfire::room { 'dev':
@@ -53,7 +57,7 @@ class diamond_project::openfire
     require     => Class['::openfire'],
   } ->
   ::openfire::user { 'hubot':
-    password => '123456',
+    password => $of_hubot_pass,
   } ->
   ::openfire::group { 'bots': } ->
   ::openfire::usergroup { 'hubot>bots' :

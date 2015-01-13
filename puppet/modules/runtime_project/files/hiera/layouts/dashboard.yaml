@@ -20,20 +20,23 @@
 # PYTHON comment: classes is a data retrieved from the 'openstack-layout.yaml'
 # PYTHON comment: It uses name and list of application (attaching a class name for each application, determined from the openstack-master.yaml)
 classes:
+  - runtime_project::hostsdiscovery
   - maestro::node_vhost_lookup
   - sysadmin_config::manage_servers
-  #Classes for jenkins instalation
+  - maestro::app::tool_status
+  - diamond_project::elk
 
-#Jenkins tool
-#diamond_project::jenkins::vhost_name:               "%{::maestro::node_vhost_lookup::vname}"
-#diamond_project::jenkins::jenkins_jobs_password:    ''
-#diamond_project::jenkins::jenkins_jobs_username:    'gerrig'
+#Elasticsearch tool
+diamond_project::elk::kato_port:        '10002'
+diamond_project::elk::stackatoapp_port: '10001'
+diamond_project::elk::redis_server:     "%{::runtime_project::hostsdiscovery::review_ip}"
+diamond_project::elk::redis_port:       '6379'
+diamond_project::elk::ls_home:          '/mnt/logstash'
 
-#TODO configure backup for jenkins
 # backup tool
 #maestro::backup::set_app_backup:
-#  jenkins:
-#    app_location:     '/var/lib/jenkins'
+#  elk:
+#    app_location:     '/var/lib/elasticsearch'
 #    db_name:          ''
 #    db_backup_tool:   ''
 #    db_user:          ''
@@ -41,9 +44,13 @@ classes:
 
 # setup server (iptables, rsyslog, tcpdump, ssh)
 sysadmin_config::manage_servers::iptables_public_tcp_ports:
-  - 80
+  - 80    #kibana
   - 443
+  - 5000
+  - 9200  #es
+  - 9300  #es
+  - 10001 #stackatoapp
+  - 10002 #kato
 
-#TODO configure tool status for jenkins
 # Tool status
-#maestro::tool_status::source: 'puppet:///modules/runtime_project/tool_status/ci/toolstatus.sh'
+maestro::tool_status::source: 'puppet:///modules/runtime_project/tool_status/dashboard/toolstatus.sh'

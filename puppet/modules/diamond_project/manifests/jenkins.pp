@@ -14,11 +14,10 @@
 # under the License.
 #
 class diamond_project::jenkins (
-  $jenkins_port = '8081',
-  $default_user = 'jenkins',
-  $default_pass = 'changeme',
+  $jenkins_port = hiera('diamond_project::jenkins::jenkins_port', '8081'),
+  $default_user = hiera('diamond_project::jenkins::default_user', 'jenkins'),
+  $default_pass = hiera('diamond_project::jenkins::default_pass', 'changeme'),
 ){
-
   #Workaround to load settings before first run
   file { '/var/lib/jenkins/config.xml' :
     ensure    => 'present',
@@ -29,15 +28,27 @@ class diamond_project::jenkins (
     subscribe => File['/var/lib/jenkins'],
   }
 
+  $token = 'yNwu1c1eHkikGRYFyxXT'
+  $host = 'http://localhost:80'
+  file { '/var/lib/jenkins/com.dabsquared.gitlabjenkins.GitLabPushTrigger.xml' :
+    ensure    => 'present',
+    owner     => 'jenkins',
+    group     => 'jenkins',
+    mode      => '0644',
+    content   => template('diamond_project/jenkins/gitlabplugin.xml.erb'),
+    subscribe => File['/var/lib/jenkins'],
+  }
+
   class { '::jenkins':
-    lts          => true,
-    install_java => true,
-    cli          => true,
-    config_hash  => {
-                    'HTTP_PORT' => {
-                                  'value' => $jenkins_port
-                    }
-    },
+    lts                => true,
+    install_java       => true,
+    cli                => true,
+    configure_firewall => false,
+    config_hash        => {
+                            'HTTP_PORT' => {
+                                        'value' => $jenkins_port
+                            }
+                          },
   }
 
   jenkins_config::plugin { 'git': } ->
@@ -45,6 +56,8 @@ class diamond_project::jenkins (
   jenkins_config::plugin { 'scm-api': } ->
   jenkins_config::plugin { 'gitlab-plugin': } ->
   jenkins_config::plugin { 'gitlab-merge-request-jenkins': } ->
+  jenkins_config::plugin { 'simple-theme-plugin': } ->
+  jenkins_config::plugin { 'jquery': } ->
 
   exec { 'wait for Jenkins to be ready':
     command   => "wget --spider http://127.0.0.1:${jenkins_port}",

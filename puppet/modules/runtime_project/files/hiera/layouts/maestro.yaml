@@ -36,9 +36,7 @@ hiera::data_class: 'runtime_project::hiera_setup'
 # create the folling nodes
 maestro::nodes:
   - 'review'
-  - 'util'
-  - 'ci'
-#  - 'nodepool'      # Uncomment this to create a NodePool node (also uncomment below under salt)
+  - 'dashboard'
 
 # configure the following ssh keys
 maestro::ssh_user_keys:
@@ -49,7 +47,7 @@ maestro::ssh_user_keys:
 # shortname is a descriptive name, TODO: source this from the blueprint data.
 jimador::site:
   maestro_url: "http://%{::maestro::node_vhost_lookup::vname}"
-  shortname: "RedStone"
+  shortname: "Diamond"
 
 maestro::dns::global::default_contact: 'admin@%{::erodomain}'
 maestro::dns:
@@ -61,45 +59,25 @@ maestro::dns:
     hostname: 'review'
     type: 'A'
     node_search: 'review.%{::maestro_id}'
-  ci:
-    hostname: 'ci'
+  dashboard:
+    hostname: 'dashboard'
     type: 'A'
-    node_search: 'ci.%{::maestro_id}'
-  util:
-    hostname: 'util'
-    type: 'A'
-    node_search: 'util.%{::maestro_id}'
+    node_search: 'dashboard.%{::maestro_id}'
 
-#TODO redirect to diamond documentation
 jimador::documentation:
-  - dname: 'OpenStack Project Infrastructure'
-    category: 'community'
-    url: 'http://ci.openstack.org/'
   - dname: 'Tutorial'
     category: 'tutorial'
     url: '../home/tutorial'
-  - dname: 'Redstone blueprint documentation'
+  - dname: 'Diamond blueprint documentation'
     category: 'tutorial'
-    url: 'http://docs.forj.io/en/latest/user/kits/redstone.html'
-  - dname: 'Managing code and reviews (Git & Gerrit)'
-    category: 'tutorial'
-    url: 'http://ci.openstack.org/gerrit.html'
-  - dname: 'Build and tests (Jenkins)'
-    category: 'tutorial'
-    url: 'http://ci.openstack.org/jenkins.html'
-  - dname: 'Project gating (Zuul)'
-    category: 'tutorial'
-    url: 'http://ci.openstack.org/zuul.html'
-  - dname: 'Share code & log snippets (Paste)'
-    category: 'tutorial'
-    url: 'http://ci.openstack.org/paste.html'
-  - dname: 'Redstone FAQs'
+    url: 'http://docs.forj.io/en/latest/user/kits/diamond.html'
+  - dname: 'Diamond FAQs'
     category: 'faq'
-    url: 'http://docs.forj.io/en/latest/user/kits/redstone.html#faq'
+    url: 'http://docs.forj.io/en/latest/user/kits/diamond.html# faq'
 
 # This parameter is used in order to hide an application from the UI. Note: you also need to set to false the 'visible' property from the common.yaml.
-jimador::default_tools_filter:
-  - 'zuul'
+#jimador::default_tools_filter:
+#  - 'zuul'
 
 maestro::instance_domain: '%{::erodomain}'
 maestro::image_name: '%{::image_name}'
@@ -115,9 +93,7 @@ maestro::ui::setup::revision: '%{::gitbranch}'
 salt::salt_reactor:
   - 'maestro'
   - 'review'
-  - 'util'
-  - 'ci'
-#  - 'nodepool'       # Uncomment this to enable management of Nodepool nodes by salt
+  - 'dashboard'
 
 puppet::reports::graphite::status: 'enabled'
 puppet::reports::graphite::graphite_port: '2003'

@@ -14,18 +14,18 @@
 # under the License.
 #
 class diamond_project::elk (
-  $kato_port        = '10002',
-  $stackatoapp_port = '10001',
-  $redis_server     = 'localhost',
-  $redis_port       = '6379',
-  $ls_home          = '/mnt/logstash',
+  $kato_port        = hiera('diamond_project::elk::kato_port'       , '10002'),
+  $stackatoapp_port = hiera('diamond_project::elk::stackatoapp_port', '10001'),
+  $redis_server     = hiera('diamond_project::elk::redis_server'    , 'localhost'),
+  $redis_port       = hiera('diamond_project::elk::redis_port'      , '6379'),
+  $ls_home          = hiera('diamond_project::elk::ls_home'         , '/mnt/logstash'),
 ) {
   class { 'elasticsearch':
     java_install => true,
     package_url  => 'https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.0.deb',
     config       => {
                     'http.cors.enabled'      => true,
-                    'http.cors.allow-origin' => 'http://localhost:80',
+                    'http.cors.allow-origin' => '"/.*/"',
                     },
   } ->
   elasticsearch::instance { 'es-01': }
@@ -58,16 +58,27 @@ class diamond_project::elk (
   }
 
   class { 'kibana3':
+    manage_git => false,
+    manage_ws  => false, #skip apache because maestro's old version
     k3_release => '07bbd7e', #3.1.2
   }
-
-  firewall { '10 ELK kit ports':
-    chain  => 'INPUT',
-    state  => 'NEW',
-    action => 'accept',
-    proto  => 'tcp',
-    sport  => ['5000', '9200', '9300', $stackatoapp_port, $kato_port],
-    source => '0.0.0.0/0',
+  #kibana3 module is incompatible with current version of apache in maestro
+  include apache
+  apache::vhost { 'kibana3' :
+    port      => '80',
+    docroot   => "${::kibana3::k3_install_folder}/src",
+    priority  => '10',
+    template  => 'diamond_project/kibana/kibana.vhost.erb',
+    subscribe => File["${::kibana3::k3_install_folder}/src/config.js"],
   }
+
+  #firewall { '10 ELK kit ports':
+  #  chain  => 'INPUT',
+  #  state  => 'NEW',
+  #  action => 'accept',
+  #  proto  => 'tcp',
+  #  sport  => ['5000', '9200', '9300', $stackatoapp_port, $kato_port],
+  #  source => '0.0.0.0/0',
+  #}
 
 }

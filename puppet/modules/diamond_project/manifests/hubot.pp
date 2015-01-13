@@ -14,14 +14,14 @@
 # under the License.
 #
 class diamond_project::hubot (
-  $chat_bot_user        = 'hubot',
-  $chat_bot_password    = 'changeme',
-  $chat_fqdn            = $::fqdn,
-  $chat_ip              = $::ipaddress,
-  $chat_bot_displayname = '[0__0]',
-  $bot_listening_port   = '5555',
-  $chat_room            = 'dev',
-  $chat_room_password   = '123456',
+  $chat_bot_user        = hiera('diamond_project::hubot::chat_bot_user'       , 'hubot'),
+  $chat_bot_password    = hiera('diamond_project::hubot::chat_bot_password'   , 'changeme'),
+  $chat_fqdn            = hiera('diamond_project::hubot::chat_fqdn'           , $::fqdn),
+  $chat_ip              = hiera('diamond_project::hubot::chat_ip'             , $::ipaddress),
+  $chat_bot_displayname = hiera('diamond_project::hubot::chat_bot_displayname', '[0__0]'),
+  $bot_listening_port   = hiera('diamond_project::hubot::bot_listening_port'  , '5555'),
+  $chat_room            = hiera('diamond_project::hubot::chat_room'           , 'dev'),
+  $chat_room_password   = hiera('diamond_project::hubot::chat_room_password'  , 'changeme'),
 ){
   $room = "${chat_room}@conference.${chat_fqdn}"
 
@@ -70,5 +70,7 @@ class diamond_project::hubot (
     external_scripts => [
                         'hubot-gocd'
                         ],
+    install_nodejs   => false,
+    require          => Class['diamond_project::openfire'],
   }
 }

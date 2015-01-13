@@ -28,7 +28,7 @@ nexus::artifact::nexus_server: 'http://nexus.cdkdev.org:8080/nexus'
 jimador::discover:
   puppet:
     tool_email: ''
-    tool_config: "%{::puppet_url_config}"
+    tool_config: ''
     tool_url: "%{::puppet_url}"
     category: 'dev'
     dname: 'Puppet Dashboard'
@@ -36,8 +36,8 @@ jimador::discover:
     icon: true
     visible: true
   gitlab:
-    tool_email: "%{::gitlab_email}"
-    tool_config: "%{::gitlab_url_config}"
+    tool_email: ''
+    tool_config: '#'
     tool_url: "%{::gitlab_url}"
     category: 'dev'
     dname: 'GitLab'
@@ -46,7 +46,7 @@ jimador::discover:
     visible: true
   openfire:
     tool_email: ''
-    tool_config: "%{::openfire_url_config}"
+    tool_config: '#'
     tool_url: "%{::openfire_url}"
     category: 'dev'
     dname: 'OpenFire'
@@ -67,7 +67,16 @@ jimador::discover:
     tool_config: "%{::elasticsearch_config}"
     tool_url: "%{::elasticsearch_url}"
     category: 'dev'
-    dname: 'Elasticsearch'
+    dname: 'ElasticSearch'
+    desc: 'Analytics'
+    icon: true
+    visible: true
+  kibana:
+    tool_email: ''
+    tool_config: "#"
+    tool_url: "%{::kibana_url}"
+    category: 'dev'
+    dname: 'Kibana'
     desc: 'Analytics'
     icon: true
     visible: true

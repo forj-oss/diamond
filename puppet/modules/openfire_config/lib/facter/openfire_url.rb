@@ -1,4 +1,4 @@
-#!/bin/bash
+# == jimador::jenkins_url
 # (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,26 +13,17 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# == 0 when running
-# != 0 not runnning
-#
-# Calling the script from maestro using salt:
-# salt 'ci.*' --out=json cmd.retcode 'sudo -i /usr/lib/forj/toolstatus.sh jenkins'
 
-RETVAL=1
-
-jenkins() {
-  sudo -i service jenkins status > /dev/null 2>&1
-  RETVAL=$?
-  echo $RETVAL
-}
-
-case "$1" in
-  jenkins)
-    jenkins
-    ;;
-  *)
-  echo "Usage: {jenkins}"
-  ;;
-esac
-exit $RETVAL
+Facter.add('openfire_url') do
+ confine :kernel => 'Linux'
+ setcode do
+   #the string to look for and the path should change depending on the system to discover
+   if File.exist? '/opt/openfire/conf/openfire.xml'
+     puts "openfire url: openfire"
+     Facter::Util::Resolution.exec("http:/localhost:9090")
+   else
+     puts "openfire url: nada!"
+     Facter::Util::Resolution.exec('echo')
+   end
+ end
+end

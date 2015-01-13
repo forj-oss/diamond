@@ -1,0 +1,24 @@
+<VirtualHost *:80>
+  ServerName <%= @name %>
+
+  ## Vhost docroot
+  DocumentRoot "<%= scope.lookupvar("::kibana3::k3_install_folder") %>/src"
+
+
+  ## Directories, there should at least be a declaration for /opt/kibana3/src
+  <Directory "<%= scope.lookupvar("::kibana3::k3_install_folder") %>/src">
+  Options Indexes FollowSymLinks MultiViews
+  AllowOverride None
+  Order allow,deny
+  Allow from all
+  </Directory>
+
+  ## Load additional static includes
+
+
+  ## Logging
+  ErrorLog "/var/log/apache2/<%= @name %>_error.log"
+  ServerSignature Off
+  CustomLog "/var/log/apache2/<%= @name %>_access.log" combined
+
+</VirtualHost>
